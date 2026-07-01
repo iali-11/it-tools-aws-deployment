@@ -57,30 +57,30 @@ resource "aws_ecs_task_definition" "it_tools_task_definition" {
   task_role_arn      = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-      name      = var.container_name
-      image     = "${var.ecr_repository_url}:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = var.app_port
-          hostPort      = var.app_port
-        }
-      ]
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-          awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "ecs"
-        }
+    name      = var.container_name
+    image     = "${var.ecr_repository_url}:latest"
+    essential = true
+    portMappings = [
+      {
+        containerPort = var.app_port
+        hostPort      = var.app_port
       }
+    ]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+        awslogs-region        = var.aws_region
+        awslogs-stream-prefix = "ecs"
+      }
+    }
     }
   ])
   runtime_platform {
-        operating_system_family = "LINUX"
-        cpu_architecture        = "ARM64"
-      }
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
 }
 
 resource "aws_security_group" "ecs_container_sg" {
