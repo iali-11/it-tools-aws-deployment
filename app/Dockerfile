@@ -6,8 +6,8 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-# Bundled with pnpm, therefore to make pnpm available, corepack is enable
 RUN corepack enable     
+
 RUN pnpm install
 
 COPY . .
