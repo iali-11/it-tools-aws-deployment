@@ -24,9 +24,9 @@ module "ecs" {
   source                             = "./modules/ecs"
   vpc_id                             = module.vpc.vpc_id
   private_subnets_ids                = module.vpc.private_subnets_ids
-  it_tools_alb                      = module.alb.it_tools_alb
-  it_tools_alb_sg                   = module.alb.it_tools_alb_sg
-  ip_it_tools_tg_arn                = module.alb.ip_it_tools_tg_arn
+  it_tools_alb                       = module.alb.it_tools_alb
+  it_tools_alb_sg                    = module.alb.it_tools_alb_sg
+  ip_it_tools_tg_arn                 = module.alb.ip_it_tools_tg_arn
   container_name                     = var.container_name
   cpu                                = var.cpu
   memory                             = var.memory
@@ -39,7 +39,7 @@ module "ecs" {
 }
 
 module "acm" {
-  source                     = "./modules/acm"
+  source                    = "./modules/acm"
   it_tools_alb              = module.alb.it_tools_alb
   it_tools_alb_dns_name     = module.alb.it_tools_alb_dns_name
   it_tools_alb_zone_id      = module.alb.it_tools_alb_zone_id
