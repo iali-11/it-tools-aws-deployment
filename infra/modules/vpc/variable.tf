@@ -3,32 +3,18 @@ variable "vpc_cidr_block" {
   description = "CIDR block of VPC"
 }
 
-variable "public_subnet_1_cidr_block" {
-  type        = string
-  description = "CIDR block of public subnet 1"
+variable "public_subnet_cidr_blocks" {
+  type        = list(string)
+  description = "CIDR block of public subnets"
 }
 
-variable "public_subnet_2_cidr_block" {
-  type        = string
-  description = "CIDR block of public subnet 2"
+variable "private_subnet_cidr_blocks" {
+  type        = list(string)
+  description = "CIDR block of private subnets"
 }
 
-variable "private_subnet_1_cidr_block" {
-  type        = string
-  description = "CIDR block of private subnet 1"
-}
-
-variable "private_subnet_2_cidr_block" {
-  type        = string
-  description = "CIDR block of private subnet 2"
-}
-
-variable "availability_zone_1" {
-  type = string
-}
-
-variable "availability_zone_2" {
-  type = string
+variable "availability_zones" {
+  type = list(string)
 }
 
 variable "default_cidr_block" {
