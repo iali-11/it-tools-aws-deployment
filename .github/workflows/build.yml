@@ -60,7 +60,7 @@ jobs:
         - name: Scan image
           run: |
             grype ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            --severity-cutoff CRITICAL \
+            --fail-on critical \
             -o table
 
         - name: Push to ECR
