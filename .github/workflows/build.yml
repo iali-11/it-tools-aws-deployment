@@ -1,0 +1,70 @@
+name: Build and Push to ECR
+
+on:
+    push:
+        branches: [main]
+        paths:
+          - "app/**"
+          - ".github/workflows/build.yml"
+    workflow_dispatch:
+
+permissions:
+    id-token: write
+    contents: read
+
+env:
+    ECR_REPOSITORY: it_tools_app
+    AWS_REGION: eu-west-2
+    IMAGE_TAG: ${{ github.sha }}
+
+concurrency:
+    group: build-and-push
+    cancel-in-progress: true
+
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v6
+          with:
+            role-to-assume: ${{ secrets.OIDC_ROLE }}
+            aws-region: ${{ env.AWS_REGION }}
+
+        - name: Login to Amazon ECR
+          uses: aws-actions/amazon-ecr-login@v2
+          id: login-ecr
+
+        - name: Build Image
+          working-directory: ./app
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          run: |
+            docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            .
+
+        - name: Install Grype
+          run: |
+            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+        - name: Force Grype DB Update
+          run: |
+            grype db update
+            
+        - name: Scan image
+          run: |
+            grype ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest \
+            -o table
+
+        - name: Push to ECR
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          run: |
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
