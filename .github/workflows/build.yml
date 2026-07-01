@@ -63,6 +63,7 @@ jobs:
             -o table
 
         - name: Push to ECR
+          working-directory: ./app
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           run: |
