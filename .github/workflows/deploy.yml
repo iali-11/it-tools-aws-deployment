@@ -50,6 +50,14 @@ jobs:
           working-directory: ./infra
           run: terraform validate
 
+        - name: Infrastructure Security Scan
+          uses: bridgecrewio/checkov-action@v12
+          with:
+            directory: ./infra
+            framework: terraform
+            soft_fail: true
+
+
         - name: Terraform Plan
           working-directory: ./infra
           run: terraform plan -input=false -out=tfplan -var="image_tag=${{ inputs.image_tag }}"
