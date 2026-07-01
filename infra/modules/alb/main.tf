@@ -52,8 +52,6 @@ resource "aws_lb_target_group" "ip_it_tools_tg" {
   vpc_id      = var.vpc_id
 }
 
-
-
 resource "aws_lb_listener" "it_tools_listener" {
   load_balancer_arn = aws_lb.it_tools_alb.arn
   port              = "80"
