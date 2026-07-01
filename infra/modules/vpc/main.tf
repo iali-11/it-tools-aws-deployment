@@ -6,43 +6,27 @@ resource "aws_vpc" "it_tools_vpc" {
   }
 }
 
-resource "aws_subnet" "it_tools_public_subnet_1" {
+resource "aws_subnet" "it_tools_public_subnets" {
+  count = 2
+
   vpc_id            = aws_vpc.it_tools_vpc.id
-  cidr_block        = var.public_subnet_1_cidr_block
-  availability_zone = var.availability_zone_1
+  cidr_block        = var.public_subnet_cidr_blocks[count.index]
+  availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "public-subnet-1"
+    Name = "public-subnet-${count.index + 1}"
   }
 }
 
-resource "aws_subnet" "it_tools_public_subnet_2" {
+resource "aws_subnet" "it_tools_private_subnets" {
+  count = 2
+
   vpc_id            = aws_vpc.it_tools_vpc.id
-  cidr_block        = var.public_subnet_2_cidr_block
-  availability_zone = var.availability_zone_2
+  cidr_block        = var.private_subnet_cidr_blocks[count.index]
+  availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "public-subnet-2"
-  }
-}
-
-resource "aws_subnet" "it_tools_private_subnet_1" {
-  vpc_id            = aws_vpc.it_tools_vpc.id
-  cidr_block        = var.private_subnet_1_cidr_block
-  availability_zone = var.availability_zone_1
-
-  tags = {
-    Name = "private-subnet-1"
-  }
-}
-
-resource "aws_subnet" "it_tools_private_subnet_2" {
-  vpc_id            = aws_vpc.it_tools_vpc.id
-  cidr_block        = var.private_subnet_2_cidr_block
-  availability_zone = var.availability_zone_2
-
-  tags = {
-    Name = "private-subnet-2"
+    Name = "private-subnet-${count.index + 1}"
   }
 }
 
@@ -64,7 +48,7 @@ resource "aws_eip" "it_tools_eip" {
 
 resource "aws_nat_gateway" "it_tools_natgw" {
   allocation_id = aws_eip.it_tools_eip.id
-  subnet_id     = aws_subnet.it_tools_public_subnet_1.id
+  subnet_id     = aws_subnet.it_tools_public_subnets[0].id
 
   tags = {
     Name = "natgw"
@@ -109,22 +93,16 @@ resource "aws_route_table" "it_tools_private_route_table" {
   }
 }
 
-resource "aws_route_table_association" "public_subnet1_assoc_rt" {
-  subnet_id      = aws_subnet.it_tools_public_subnet_1.id
+resource "aws_route_table_association" "public" {
+  count = 2
+
+  subnet_id      = aws_subnet.it_tools_public_subnets[count.index].id
   route_table_id = aws_route_table.it_tools_public_route_table.id
 }
 
-resource "aws_route_table_association" "public_subnet2_assoc_rt" {
-  subnet_id      = aws_subnet.it_tools_public_subnet_2.id
-  route_table_id = aws_route_table.it_tools_public_route_table.id
-}
+resource "aws_route_table_association" "private" {
+  count = 2
 
-resource "aws_route_table_association" "private_subnet1_assoc_rt" {
-  subnet_id      = aws_subnet.it_tools_private_subnet_1.id
-  route_table_id = aws_route_table.it_tools_private_route_table.id
-}
-
-resource "aws_route_table_association" "private_subnet2_assoc_rt" {
-  subnet_id      = aws_subnet.it_tools_private_subnet_2.id
+  subnet_id      = aws_subnet.it_tools_private_subnets[count.index].id
   route_table_id = aws_route_table.it_tools_private_route_table.id
 }
