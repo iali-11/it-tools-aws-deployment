@@ -1,0 +1,65 @@
+name: Terraform Deploy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "ECR image tag to deploy"
+        required: true
+
+permissions:
+    id-token: write
+    contents: read
+
+env:
+    AWS_REGION: eu-west-2
+    TF_VERSION: "1.15.1"
+
+concurrency:
+    group: terraform-deploy
+    cancel-in-progress: true
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v6
+          with:
+            role-to-assume: ${{ secrets.OIDC_ROLE }}
+            aws-region: ${{ env.AWS_REGION }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v4
+          with:
+            terraform_version: ${{ env.TF_VERSION }}
+
+        - name: Terraform Format Check
+          working-directory: ./infra
+          run: terraform fmt -check
+
+        - name: Terraform Init
+          working-directory: ./infra
+          run: terraform init
+          
+        - name: Terraform Validate
+          working-directory: ./infra
+          run: terraform validate
+
+        - name: Terraform Plan
+          working-directory: ./infra
+          run: terraform plan -input=false -out=tfplan -var="image_tag=${{ inputs.image_tag }}"
+
+        - name: Terraform Apply
+          working-directory: ./infra
+          run: terraform apply -auto-approve tfplan
+
+        - name: Post Deploy Health Check
+          run: |
+            sleep 100
+            curl -f https://tm-ibrahimali.com/health && exit 0
+            echo "Health Check Successful!"
