@@ -15,15 +15,18 @@ This project deploys a containerised IT Tools application to Amazon ECS Fargate 
 
 ## Local Setup
 
+Self-host IT-Tools in your homelab using Docker.
+
+**From docker hub:**
+
+```sh
+docker run -d --name it-tools --restart unless-stopped -p 8080:80 corentinth/it-tools:latest
 ```
-pnpm install        # Project Setup
 
-pnpm dev            # Compile and Hot-Reload for Development
+**From github packages:**
 
-pnpm build          # Type-Check, Compile and Minify for Production
-
-curl http://localhost:5173/health   # Local setup health check
-
+```sh
+docker run -d --name it-tools --restart unless-stopped -p 8080:80 ghcr.io/corentinth/it-tools:latest
 ```
 
 ## Architecture Diagram
