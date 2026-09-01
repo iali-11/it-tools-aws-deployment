@@ -39,7 +39,6 @@ resource "aws_lb" "it_tools_alb" {
   load_balancer_type         = "application"
   subnets                    = var.public_subnets_ids
   security_groups            = [aws_security_group.it_tools_alb_sg.id]
-  drop_invalid_header_fields = true
 
   enable_deletion_protection = false
 }
@@ -73,7 +72,6 @@ resource "aws_lb_listener" "it_tools_listener_https" {
   port              = "443"
   protocol          = "HTTPS"
 
-  ssl_policy = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
     type             = "forward"
